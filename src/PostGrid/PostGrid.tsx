@@ -10,7 +10,7 @@ const PostGrid = ({posts}: PostGridProps) => {
 	const postItems = posts.map((post, index) => {
 		return (
 			<Post 
-				key={post.link.replace('https://www.flickr.com/photos/', '')}
+				key={post.key}
 				src={post.src}
 				link={post.link}
 				title={post.title}

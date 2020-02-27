@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import './Post.css'
 
 export interface PostProps {
+	key: string
 	src: string
 	link: string
 	title: string

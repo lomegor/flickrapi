@@ -1,24 +1,26 @@
-import React from 'react';
+import React, {Component} from 'react';
+import PostList from './PostList/PostList';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface AppState {
+	posts: Array<Object>
 }
 
-export default App;
+export default class App extends Component<{}, AppState> {
+	constructor(props: {}) {
+		super(props)
+		this.state = {
+			posts: [1, 2, 3]
+		}
+	}
+  render() {
+		return (
+			<>
+				<header><h1>Flickr Photo Stream</h1></header>
+				<main role="main">
+					<PostList posts={this.state.posts} />
+				</main>
+			</>
+		)
+  }
+}

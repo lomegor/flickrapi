@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import fetchJsonp from 'fetch-jsonp';
-import {PostProps} from './PostList/Post';
-import PostList from './PostList/PostList';
+import {PostProps} from './PostGrid/Post';
+import PostGrid from './PostGrid/PostGrid';
+import Typography from '@material-ui/core/Typography';
 import './App.css';
 
 interface FlickrPost {
@@ -29,6 +30,7 @@ export default class App extends Component<{}, AppState> {
 		this.getPosts()
 	}
 	getPosts() {
+		// Tag 'safe' returns more nsfw than not having it
 		fetchJsonp('https://api.flickr.com/services/feeds/photos_public.gne?format=json', {
 			jsonpCallbackFunction: 'jsonFlickrFeed'
 		}).then((response) => {
@@ -40,6 +42,7 @@ export default class App extends Component<{}, AppState> {
 					const element = document.createElement('div');
 					element.innerHTML = post['description']
 					let description = '';
+					console.log(post['description']);
 					if (element.children[2]) {
 						const descriptionP = element.children[2] as HTMLElement;
 						description = descriptionP.innerText;
@@ -48,7 +51,7 @@ export default class App extends Component<{}, AppState> {
 					return {
 						src: post['media']['m'],
 						link: post['link'],
-						title: post['title'],
+						title: post['title'] === ' ' ? 'Untitled' : post['title'],
 						author: post['author'].replace(/.*\("(.*)"\)/, '$1'),
 						authorLink: 'https://www.flickr.com/people/' + post['author_id'],
 						description: description,
@@ -64,9 +67,13 @@ export default class App extends Component<{}, AppState> {
   render() {
 		return (
 			<>
-				<header><h1>Flickr Photo Stream</h1></header>
+				<header>
+					<Typography variant="h1">
+						Flickr Photo Stream
+					</Typography>
+				</header>
 				<main role="main">
-					<PostList posts={this.state.posts} />
+					<PostGrid posts={this.state.posts} />
 				</main>
 			</>
 		)

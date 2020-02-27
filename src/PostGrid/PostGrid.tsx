@@ -1,11 +1,12 @@
 import React from 'react';
 import {PostProps, Post} from './Post';
+import Grid from '@material-ui/core/Grid';
 
-interface PostListProps {
+interface PostGridProps {
 	posts: Array<PostProps>
 }
 
-const PostList = ({posts}: PostListProps) => {
+const PostGrid = ({posts}: PostGridProps) => {
 	const postItems = posts.map((post, index) => {
 		return (
 			<Post 
@@ -21,10 +22,10 @@ const PostList = ({posts}: PostListProps) => {
 		)
 	});
 	return (
-		<div className="post-list">
+		<Grid container spacing={4}>
 			{postItems}
-		</div>
+		</Grid>
 	)
 }
 
-export default PostList
+export default PostGrid

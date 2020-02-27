@@ -1,0 +1,12 @@
+.post .image {
+	display: block;
+	width: 100%;
+	margin-bottom: 20px;
+}
+.post .image div {
+	height: 200px;
+}
+.post .description, .post .tags {
+	max-height: 100px;
+	overflow: hidden;
+}

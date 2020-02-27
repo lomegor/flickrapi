@@ -1,22 +1,22 @@
 import React from 'react';
-import Post from './Post';
+import {PostProps, Post} from './Post';
 
 interface PostListProps {
-	posts: Array<Object>
+	posts: Array<PostProps>
 }
 
 const PostList = ({posts}: PostListProps) => {
-	const postItems = posts.map((post) => {
-		const tags = ['a', 'b'];
+	const postItems = posts.map((post, index) => {
 		return (
 			<Post 
-				src="google.com"
-				link="wikipedia.org"
-				title="Title"
-				author="Author"
-				authorLink="stackoverflow.com"
-				description="long description"
-				tags={tags}
+				key={post.link.replace('https://www.flickr.com/photos/', '')}
+				src={post.src}
+				link={post.link}
+				title={post.title}
+				author={post.author}
+				authorLink={post.authorLink}
+				description={post.description}
+				tags={post.tags}
 			/>
 		)
 	});

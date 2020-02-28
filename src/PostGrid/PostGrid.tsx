@@ -4,9 +4,10 @@ import Grid from '@material-ui/core/Grid';
 
 interface PostGridProps {
 	posts: Array<PostProps>
+	filterTag: (arg0: string) => void
 }
 
-const PostGrid = ({posts}: PostGridProps) => {
+const PostGrid = ({posts, filterTag}: PostGridProps) => {
 	const postItems = posts.map((post, index) => {
 		return (
 			<Post 
@@ -18,6 +19,7 @@ const PostGrid = ({posts}: PostGridProps) => {
 				authorLink={post.authorLink}
 				description={post.description}
 				tags={post.tags}
+				filterTag={filterTag}
 			/>
 		)
 	});

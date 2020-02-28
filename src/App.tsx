@@ -22,28 +22,40 @@ interface AppState {
 	existingKeys: Array<string>
 	posts: Array<PostProps>
 	hasMore: boolean
+	tags: Set<string>
 }
 
 export default class App extends Component<{}, AppState> {
+	loading = false
+	reload = false
 	constructor(props: {}) {
 		super(props)
 		this.state = {
 			existingKeys: [],
 			posts: [],
-			hasMore: true
+			hasMore: true,
+			tags: new Set()
 		}
 		this.getPosts()
 	}
 	getPosts() {
+		if (this.loading) {
+			return;
+		}
+		this.loading = true;
 		// Tag 'safe' returns more nsfw than not having it
-		fetchJsonp('https://api.flickr.com/services/feeds/photos_public.gne?format=json', {
+		let url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json';
+		if (this.state.tags.size) {
+			url += '&tags=' + Array.from(this.state.tags).join(',')
+		}
+		fetchJsonp(url, {
 			jsonpCallbackFunction: 'jsonFlickrFeed'
 		}).then((response) => {
 			return response.json()
 		}).then((json) => {
 			const oldLength = this.state.posts.length;
-			const newPosts = this.state.posts;
-			const newKeys = this.state.existingKeys;
+			const newPosts = this.reload ? [] : this.state.posts;
+			const newKeys = this.reload ? [] : this.state.existingKeys;
 			json.items.forEach((post: FlickrPost) => {
 				// Parse the description since it contains info added by Flickr and since we don't want to risk XSS
 				const element = document.createElement('div');
@@ -75,25 +87,44 @@ export default class App extends Component<{}, AppState> {
 				posts: newPosts,
 				hasMore: newHasMore
 			})
+			this.loading = false;
+			this.reload = false;
 		}).catch((error) => {
 			console.error(error)
 		})
 	}
+	filterTag(tag: string) {
+		console.log(tag)
+		const tags = this.state.tags;
+		tags.add(tag);
+		this.loading = false
+		this.reload = true
+		this.setState({
+			tags: tags
+		}, this.getPosts.bind(this, true))
+	}
   render() {
+		const tags = this.state.tags.size > 0 ?
+			<Typography variant="caption" paragraph={true}>
+				Tags: {Array.from(this.state.tags).join(', ')}
+			</Typography> :
+			'';
 		return (
 			<>
 				<header>
 					<Typography variant="h1">
 						Flickr Photo Stream
 					</Typography>
+					{tags}
 				</header>
 				<main role="main">
 					<InfiniteScroll
+							pageStart={0}
 							loadMore={this.getPosts.bind(this)}
-							loader={<h4>Loading...</h4>}
+							loader={<h4 key="loading">Loading...</h4>}
 							hasMore={this.state.hasMore}
 							>
-						<PostGrid posts={this.state.posts} />
+						<PostGrid posts={this.state.posts} filterTag={this.filterTag.bind(this)}/>
 					</InfiniteScroll>
 				</main>
 			</>

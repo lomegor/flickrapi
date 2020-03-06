@@ -3,6 +3,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import fetchJsonp from 'fetch-jsonp';
 import {PostProps} from './PostGrid/Post';
 import PostGrid from './PostGrid/PostGrid';
+import sanitizeHtml from 'sanitize-html';
 import Typography from '@material-ui/core/Typography';
 import './App.css';
 
@@ -42,11 +43,11 @@ export default class App extends Component<{}, AppState> {
 	parsePost(post: FlickrPost, newPosts: Array<PostProps>, newKeys: Array<string>) {
 			// Parse the description since it contains info added by Flickr and since we don't want to risk XSS
 			const element = document.createElement('div');
-			element.innerHTML = post['description']
+			element.innerHTML = sanitizeHtml(post['description']);
 			let description = '';
 			if (element.children[2]) {
 				const descriptionP = element.children[2] as HTMLElement;
-				description = descriptionP.innerText;
+				description = descriptionP.innerHTML;
 			}
 			// Convert to our format in case it changes
 			const key = post.link.replace('https://www.flickr.com/photos/', '');

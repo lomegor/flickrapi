@@ -41,8 +41,9 @@ export const Post = ({src, link, title, author, authorLink, description, tags, f
 						<span> by </span>
 						<Link href={authorLink} className="author">{author}</Link>
 					</Typography>
-					<Typography className="description" color="textSecondary" variant="body2" paragraph={true}>
-						{description}
+					<Typography className="description" color="textSecondary" variant="body2" paragraph={true}
+						dangerouslySetInnerHTML={{__html: description}}
+					>
 					</Typography>
 					<Typography className="tags" variant="caption" color="textPrimary">
 						Tags: {tagItems}

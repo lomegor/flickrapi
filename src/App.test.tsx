@@ -29,7 +29,7 @@ test('parsePost correctly parses a post', () => {
 			title: 'Title',
 			author: 'Dog \'s Day',
 			authorLink: 'https://www.flickr.com/people/52949253@N05',
-			description: undefined, // innerText not defined on jsdom
+			description: 'Description',
 			tags: ['test', 'tags']
 	});
 	expect(keys[0]).toEqual('dog_s_day/49625443258/');
@@ -64,7 +64,7 @@ test('parsePost does not add the same post twice', () => {
 			title: 'Title',
 			author: 'Dog \'s Day',
 			authorLink: 'https://www.flickr.com/people/52949253@N05',
-			description: undefined, // innerText not defined on jsdom
+			description: 'Description',
 			tags: ['test', 'tags']
 	});
 	expect(keys[0]).toEqual('dog_s_day/49625443258/');

@@ -38,17 +38,35 @@ export default class App extends Component<{}, AppState> {
 		}
 		this.getPosts()
 	}
-	getPosts() {
-		if (this.loading) {
-			return;
-		}
-		this.loading = true;
-		// Tag 'safe' returns more nsfw than not having it
-		let url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json';
-		if (this.state.tags.size) {
-			url += '&tags=' + Array.from(this.state.tags).join(',')
-		}
-		fetchJsonp(url, {
+
+	parsePost(post: FlickrPost, newPosts: Array<PostProps>, newKeys: Array<string>) {
+			// Parse the description since it contains info added by Flickr and since we don't want to risk XSS
+			const element = document.createElement('div');
+			element.innerHTML = post['description']
+			let description = '';
+			if (element.children[2]) {
+				const descriptionP = element.children[2] as HTMLElement;
+				description = descriptionP.innerText;
+			}
+			// Convert to our format in case it changes
+			const key = post.link.replace('https://www.flickr.com/photos/', '');
+			if (newKeys.indexOf(key) === -1) {
+				newPosts.push({
+					key: key,
+					src: post['media']['m'],
+					link: post['link'],
+					title: post['title'] === ' ' ? 'Untitled' : post['title'],
+					author: post['author'].replace(/.*\("(.*)"\)/, '$1'),
+					authorLink: 'https://www.flickr.com/people/' + post['author_id'],
+					description: description,
+					tags: post['tags'].split(' ')
+				})
+				newKeys.push(key)
+			}
+	}
+
+	loadPosts(url: string): Promise<void> {
+		return fetchJsonp(url, {
 			jsonpCallbackFunction: 'jsonFlickrFeed'
 		}).then((response) => {
 			return response.json()
@@ -57,29 +75,7 @@ export default class App extends Component<{}, AppState> {
 			const newPosts = this.reload ? [] : this.state.posts;
 			const newKeys = this.reload ? [] : this.state.existingKeys;
 			json.items.forEach((post: FlickrPost) => {
-				// Parse the description since it contains info added by Flickr and since we don't want to risk XSS
-				const element = document.createElement('div');
-				element.innerHTML = post['description']
-				let description = '';
-				if (element.children[2]) {
-					const descriptionP = element.children[2] as HTMLElement;
-					description = descriptionP.innerText;
-				}
-				// Convert to our format in case it changes
-				const key = post.link.replace('https://www.flickr.com/photos/', '');
-				if (newKeys.indexOf(key) === -1) {
-					newPosts.push({
-						key: key,
-						src: post['media']['m'],
-						link: post['link'],
-						title: post['title'] === ' ' ? 'Untitled' : post['title'],
-						author: post['author'].replace(/.*\("(.*)"\)/, '$1'),
-						authorLink: 'https://www.flickr.com/people/' + post['author_id'],
-						description: description,
-						tags: post['tags'].split(' ')
-					})
-					newKeys.push(key)
-				}
+				this.parsePost(post, newPosts, newKeys);
 			})
 			const newHasMore = this.state.posts.length > oldLength;
 			this.setState({
@@ -93,8 +89,21 @@ export default class App extends Component<{}, AppState> {
 			console.error(error)
 		})
 	}
+
+	getPosts() {
+		if (this.loading) {
+			return;
+		}
+		this.loading = true;
+		// Tag 'safe' returns more nsfw than not having it
+		let url = 'https://api.flickr.com/services/feeds/photos_public.gne?format=json';
+		if (this.state.tags.size) {
+			url += '&tags=' + Array.from(this.state.tags).join(',')
+		}
+		this.loadPosts(url);
+	}
+
 	filterTag(tag: string) {
-		console.log(tag)
 		const tags = this.state.tags;
 		tags.add(tag);
 		this.loading = false
@@ -103,6 +112,7 @@ export default class App extends Component<{}, AppState> {
 			tags: tags
 		}, this.getPosts.bind(this, true))
 	}
+
   render() {
 		const tags = this.state.tags.size > 0 ?
 			<Typography variant="caption" paragraph={true}>
